@@ -1,0 +1,148 @@
+== Architecture Générale des Modules - Moments
+
+=== Structure d’un module
+
+[source,text]
+----
+modules/
+└── <module>/
+    ├── domain/
+    ├── application/
+    ├── infra/
+    └── presentation/
+----
+
+=== Rôle des couches
+
+==== domain/
+
+Objets métier + règles métier.
+
+Ne connaît ni API, ni BDD, ni autres modules.
+
+==== application/
+
+Cas d’usage + contrats du module.
+
+C’est là qu’on orchestre : créer, modifier, lire, valider.
+
+==== infra/
+
+Technique concrète : PostgreSQL, repositories, adapters vers autres
+modules.
+
+==== presentation/
+
+Endpoints FastAPI + DTO/schemas échangés avec le front.
+
+'''''
+
+=== Communication entre modules
+
+==== Provider = port sortant
+
+Le module a besoin d’informations venant d’un autre module.
+
+Exemple :
+
+[source,text]
+----
+program/application/participant_provider.py
+----
+
+Programme demande des informations minimales sur une personne.
+
+==== Reader = port entrant
+
+Le module expose ses informations en lecture aux autres modules.
+
+Exemple :
+
+[source,text]
+----
+program/application/program_reader.py
+----
+
+Les autres modules peuvent lire les créneaux, activités et assignations.
+
+'''''
+
+=== Règles fortes
+
+==== Pas de FK entre modules
+
+Entre modules, on stocke uniquement des UUID de référence.
+
+==== FK autorisées à l’intérieur d’un même module
+
+Exemple :
+
+[source,text]
+----
+activity -> activity_assignment
+----
+
+==== Pas de suppression physique des entités référencées
+
+On désactive ou on archive.
+
+==== Un module ne manipule jamais les objets métier internes d’un autre module
+
+Il manipule sa propre représentation locale.
+
+Exemple :
+
+[source,text]
+----
+person.domain.Person
+program.domain.Participant
+----
+
+'''''
+
+=== Gestion des identifiants
+
+Les entités métier possèdent un UUID généré côté backend.
+
+Cet UUID :
+
+* existe dans le domaine ;
+* est stocké en base ;
+* est renvoyé au front.
+
+Exemple :
+
+[source,text]
+----
+Activity.id
+----
+
+L’identité métier n’est pas un détail technique réservé à PostgreSQL.
+
+'''''
+
+=== Exemple : module Programme
+
+[source,text]
+----
+program/
+├── domain/
+│   ├── activity.py
+│   └── participant.py
+├── application/
+│   ├── create_activity.py
+│   ├── participant_provider.py
+│   └── program_reader.py
+├── infra/
+│   ├── activity_entity.py
+│   ├── activity_repository.py
+│   └── person_adapter.py
+└── presentation/
+    ├── activity_routes.py
+    └── activity_schemas.py
+----
+
+=== Principe directeur
+
+Chaque module possède ses données, expose ce qu’il accepte de partager
+et ne dépend des autres qu’à travers des contrats explicites.

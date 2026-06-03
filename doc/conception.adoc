@@ -1,0 +1,419 @@
+== Moments V2 — Documentation Métier (DDD)
+
+=== 1. Domaine
+
+Organisation d’événements familiaux.
+
+'''''
+
+=== 2. Blocs métiers
+
+==== 2.1 Repas & Intendance culinaire
+
+===== Mission
+
+Planifier, organiser et exécuter la partie nourriture d’un événement :
+menus, repas, plats, recettes, liste de courses, plan de table.
+
+===== Concepts métier
+
+* Repas
+* Menu
+* Plat
+* Recette
+* Ingrédient
+* Unité
+* Catégorie de recette
+* Table
+* Place à table
+* Liste de courses
+* Suivi d’achat
+
+===== Frontière métier
+
+*Contient :* - Construction de menus (repas → menu → plats) - Gestion
+des recettes, ingrédients, unités, catégories - Plan de table (tables,
+places) - Liste de courses (ingrédients, quantités, suivi d’achat) -
+Calcul des quantités nécessaires
+
+*Ne contient pas :* - Participants, invités, comptes-tiers - Présence ou
+disponibilité - Activités, calendrier, tâches - Chambres, lits,
+équipements - Cadeaux, listes, réservations, livraisons
+
+*Lit (lecture seule) :* - Présence (bloc Participants) - Disponibilité
+(bloc Participants)
+
+'''''
+
+==== 2.2 Hébergement & Vie sur place
+
+===== Mission
+
+Organiser l’espace de vie pendant l’événement : chambres, lits,
+équipements, besoins, affectation des personnes.
+
+===== Concepts métier
+
+* Chambre
+* Lit
+* Type de lit
+* Équipement
+* Besoin / Manque
+* Affectation personne → chambre / lit
+
+===== Frontière métier
+
+*Contient :* - Inventaire des chambres, lits, types de lits -
+Équipements disponibles - Besoins et manques - Affectation des personnes
+aux chambres
+
+*Ne contient pas :* - Repas, menus, listes de courses - Calendrier,
+activités, tâches - Cadeaux, listes, réservations, livraisons - Plan de
+table
+
+*Lit (lecture seule) :* - Présence (bloc Participants) - Disponibilité
+facultative si certaines affects doivent dépendre d’activités
+
+'''''
+
+==== 2.3 Programme & Coordination temporelle
+
+===== Mission
+
+Structurer ce qui se passe pendant l’événement : calendrier, activités,
+tâches.
+
+===== Concepts métier
+
+* Calendrier
+* Tâche
+* Activité
+* Moment clé
+
+===== Frontière métier
+
+*Contient :* - Création du calendrier - Création et gestion des
+activités - Création des tâches - Assignation de tâches et activités à
+des personnes
+
+*Ne contient pas :* - Présence et disponibilité - Menus, repas, liste de
+courses - Hébergement, chambres, équipements - Cadeaux, listes,
+réservations, livraisons
+
+*Exposé aux autres blocs :* - Créneaux horaires des activités et tâches
+- Assignations
+
+*Lit (lecture seule) :* - Rien (source de vérité temporelle)
+
+'''''
+
+==== 2.4 Cadeaux
+
+===== Mission
+
+Gérer les cadeaux : listes personnelles, listes des autres, options,
+réservations, livraisons, contributions, idées.
+
+===== Concepts métier
+
+* Cadeau
+* Liste de cadeaux
+* Option
+* Réservation
+* Livraison
+* Partage / Contribution
+* Proposition de partage
+* Idée de cadeau
+
+===== Frontière métier
+
+*Contient :* - Gestion complète des listes - Options et réservations -
+Suivi de livraison - Contributions (partage) - Historique - Idées de
+cadeaux
+
+*Ne contient pas :* - Menus, repas, recettes - Calendrier, activités,
+tâches - Hébergement, chambres, équipements - Présence et disponibilité
+
+*Lit (lecture seule) :* - Personnes (relations, amis) - Événement
+(dates) si liste liée à un événement
+
+*Fonctionne seul :* Oui, entièrement utilisable hors événement.
+
+'''''
+
+==== 2.5 Carnet de recettes
+
+===== Mission
+
+Stocker, organiser et réutiliser des recettes indépendamment de tout
+événement.
+
+===== Concepts métier
+
+* Recette
+* Ingrédient
+* Unité
+* Catégorie de recette
+
+===== Frontière métier
+
+*Contient :* - Recettes - Ingrédients - Unités - Catégories
+
+*Ne contient pas :* - Menus, repas, liste de courses - Présence,
+disponibilité, personnes - Activités, calendrier, tâches - Cadeaux,
+réservations, livraisons - Hébergement
+
+*Lit (lecture seule) :* - Rien (bloc autonome)
+
+'''''
+
+==== 2.6 Participants & Présence
+
+===== Mission
+
+Décrire les personnes de l’application, leurs rôles, leurs relations,
+leurs périodes de présence et leurs indisponibilités (liées aux
+activités).
+
+===== Concepts métier
+
+* Organisateur
+* Participant
+* Invité
+* Compte-tiers
+* Présence (arrivée, départ)
+* Disponibilité (créneaux d’indisponibilité liés aux activités)
+* Relation / liste d’amis
+
+===== Frontière métier
+
+*Contient :* - Personnes et rôles - Périodes de présence - Calcul des
+indisponibilités en lisant Programme - Relations (amis, contacts,
+participants liés)
+
+*Ne contient pas :* - Menus, repas, liste de courses - Cadeaux,
+réservations, livraisons - Hébergement, chambres, lits, équipements -
+Calendrier, tâches, activités
+
+*Lit (lecture seule) :* - Programme (créneaux des activités +
+inscriptions) - Événement (dates)
+
+*Exposé aux autres blocs :* - Présence par jour - Disponibilité par
+créneau - Liste des personnes
+
+'''''
+
+=== 3. Dépendances entre blocs
+
+* Carnet de recettes → autonome (référencé par Repas)
+* Cadeaux → lit Participants & Présence
+
+PROGRAMME ↓ (lecture) PARTICIPANTS & PRÉSENCE ↓ (lecture) REPAS &
+INTENDANCE ↓ (lecture) HÉBERGEMENT (facultatif pour disponibilité)
+
+* Carnet de recettes = autonome
+* Cadeaux = dépend de Participants, mais peut vivre seul
+* Programme = dépend de personne
+* Participants = dépend de Programme en lecture seule
+* Repas = dépend uniquement de Participants
+* Hébergement = dépend uniquement de Participants
+
+Aucune dépendance circulaire.
+
+'''''
+
+=== 4. Résumé du modèle logique
+
+* Programme définit *le temps*
+* Participants définit *qui est là* et *qui est disponible*
+* Repas calcule *combien de personnes* sont comptées par repas
+* Hébergement utilise *qui est présent* pour attribuer des chambres
+* Cadeaux utilise *les personnes* pour consulter et offrir
+* Carnet de recettes est *référentiel*
+
+'''''
+
+=== 5. Bounded Context (déduis des concepts métiers)
+
+==== 5.1 Repas et intendance culinaire
+
+===== Entités
+
+* Repas
+* Menu
+* Plat
+* ListeDeCourses
+* Achat
+
+===== Value Objects
+
+* Table (type + capacité)
+* Place (souvent un VO interne au plan de table)
+* Quantité (en lien avec unité mais unité vient du BC Recettes)
+
+===== Importations (références, pas entités internes)
+
+* Recette
+* Ingrédient
+* Unité
+* Catégorie de recette
+
+===== Agrégat 1 : Repas
+
+Racine : Repas - Menu (entité interne) - Plats (entités internes) -
+Table (value object) - Place (value object)
+
+Références vers recettes (du BC Recettes)
+
+===== Agrégat 2 : ListeDeCourses
+
+Racine : ListeDeCourses - Achats (entités internes) - Quantités (value
+objects)
+
+Références vers ingrédients (BC Recettes) Références vers unités (BC
+Recettes)
+
+==== 5.2 Hébergement & Vie sur place
+
+===== Entités
+
+* Chambre
+* Lit
+* Affectation (personne ↔ lit/chambre)
+* Équipement
+* Besoin/Manque
+
+===== Value Objects
+
+* TypeDeLit (simple/queen/king/superposé…)
+* CapacitéLit (1 personne / 2 personnes)
+* ÉtiquetteÉquipement (catégories : confort, cuisine, enfants, etc.)
+(optionnel)
+
+===== Importations (références)
+
+Personne (du BC Participants) → L’hébergement NE stocke pas les
+personnes, il les référence.
+
+===== Agrégat 1 : Hébergement
+
+Racine : Chambre Enfants : Lits, Affectations, TypeDeLit (VO)
+
+===== Agrégat 2 : Maison
+
+Racine : Équipement Enfants : Besoin/Manque
+
+==== 5.3 Programme & Coordination temporelle
+
+===== Entités
+
+* Calendrier
+* Activité
+* Tâche
+* Assignation (tâche/activité → personne)
+
+===== Value Objects
+
+* CréneauHoraire (début, fin)
+* MomentClé (optionnel)
+* Rappel (optionnel – VO, pas entité)
+
+===== Importations (références)
+
+Personne (depuis Participants)
+
+===== Agrégat 1 : Calendrier
+
+Racine : Calendrier Enfants : moments-clés, découpages temporels (VO)
+
+===== Agrégat 2 : Activité
+
+Racine : Activité Enfants : Créneau, Assignations (références Personne)
+
+===== Agrégat 3 : Tâche
+
+Racine : Tâche Enfants : Assignations (références Personne)
+
+==== 5.4 Cadeaux
+
+===== Entités
+
+* Cadeau
+* ListeDeCadeaux
+* Option
+* Réservation
+* Livraison
+* Contribution/Partage
+* Historique (événements passés)
+* IdéeDeCadeau
+* Proposition de partage (NOTE : La proposition de partage est à
+préciser lors de la modélisation des cas d’usage (flow Cadeaux).)
+
+===== Value Objects
+
+* AdresseLivraison
+* StatutLivraison (VO)
+* MontantContribution
+* IdentitéCadeau
+
+===== Importations (références)
+
+Personne (depuis Participants) Événement (dates, facultatif pour
+deadlines)
+
+===== Agrégat 1 : ListeDeCadeaux
+
+Racine : ListeDeCadeaux Enfants : Cadeaux, Options, Réservations, Idées
+
+===== Agrégat 2 : CadeauPrise
+
+Racine : Réservation (ou Option selon étape) Enfants : Livraison,
+Contributions
+
+==== 5.5 Carnet de recettes
+
+===== Entités
+
+* Recette
+* Ingrédient (entité interne ou référentiel interne)
+* Catégorie
+* Unité
+
+===== Value Objects
+
+* Quantité
+* TempsDePréparation
+* Étape (liste ordonnée)
+
+===== Importations (références)
+
+Aucune. C’est le seul BC 100% autonome.
+
+===== Agrégat unique : Recette
+
+Racine : Recette Enfants : ingrédients, unités, catégories, étapes (VO)
+
+==== 5.6 Participants & Présence
+
+===== Entités
+
+* Personne (participant, invité, organisateur)
+* CompteTiers
+* Relation (amis / contacts)
+* Présence
+* Disponibilité (calculée mais stockée ici)
+
+===== Value Objects
+
+* IntervalleTemps (arrivée → départ)
+* CréneauIndisponible
+* IdentitéPersonne
+
+===== Importations (références)
+
+Activité (créneaux depuis Programme) Événement (dates)
+
+===== Agrégat unique : Personne
+
+Racine : Personne Enfants : Présence, Disponibilité, Relations,
+CompteTiers
