@@ -1,0 +1,250 @@
+== Architecture modulaire - Backend Quarkus
+
+....
+backend/
+├── pom.xml
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── fr/
+│   │   │       └── moments/
+│   │   │           ├── core/
+│   │   │           │   ├── security/                  # Sécurité transversale, JWT, rôles applicatifs
+│   │   │           │   ├── exception/                 # Exceptions communes + handlers REST
+│   │   │           │   └── config/                    # Configuration Quarkus transverse
+│   │   │           │
+│   │   │           └── modules/
+│   │   │               ├── program/
+│   │   │               │   ├── domain/
+│   │   │               │   │   ├── Activity.java                  # classe - agrégat métier
+│   │   │               │   │   ├── ActivityType.java              # enum
+│   │   │               │   │   ├── Participant.java               # record/classe - représentation locale côté program
+│   │   │               │   │   └── TimeSlot.java                  # record - value object
+│   │   │               │   │
+│   │   │               │   ├── application/
+│   │   │               │   │   ├── CreateActivityUseCase.java     # classe - cas d’usage
+│   │   │               │   │   ├── UpdateActivityUseCase.java     # classe - cas d’usage
+│   │   │               │   │   ├── GetActivityUseCase.java        # classe - cas d’usage
+│   │   │               │   │   ├── provider/
+│   │   │               │   │   │   └── ParticipantProvider.java   # interface - port sortant vers person
+│   │   │               │   │   ├── reader/
+│   │   │               │   │   │   ├── ProgramReader.java         # interface - port entrant exposé aux autres modules
+│   │   │               │   │   └── repository/
+│   │   │               │   │       └── ActivityRepository.java    # interface - port sortant vers persistance
+│   │   │               │   │
+│   │   │               │   ├── infrastructure/
+│   │   │               │   │   ├── adapter/
+│   │   │               │   │   │   └── PersonParticipantAdapter.java # classe - implémente ParticipantProvider
+│   │   │               │   │   ├── persistence/
+│   │   │               │   │   │   ├── ActivityEntity.java        # classe JPA - table program_activity
+│   │   │               │   │   │   ├── ActivityAssignmentEntity.java # classe JPA - table program_activity_assignment
+│   │   │               │   │   │   └── JpaActivityRepository.java # classe - implémente ActivityRepository
+│   │   │               │   │   └── mapper/
+│   │   │               │   │       └── ActivityPersistenceMapper.java # classe - Activity <-> ActivityEntity
+│   │   │               │   │
+│   │   │               │   └── presentation/
+│   │   │               │       ├── ActivityResource.java          # classe REST Quarkus
+│   │   │               │       ├── dto/
+│   │   │               │       │   ├── CreateActivityRequest.java # record - DTO API entrant
+│   │   │               │       │   ├── UpdateActivityRequest.java # record - DTO API entrant
+│   │   │               │       │   ├── ActivityResponse.java      # record - DTO API sortant
+│   │   │               │       │   └── ParticipantResponse.java   # record - DTO API sortant
+│   │   │               │       └── mapper/
+│   │   │               │           └── ActivityDtoMapper.java     # classe - DTO <-> command / response
+│   │   │               │
+│   │   │               └── person/
+│   │   │                   ├── domain/
+│   │   │                   │   ├── Person.java                    # classe - entité métier
+│   │   │                   │   └── PersonStatus.java              # enum - ACTIVE / INACTIVE
+│   │   │                   │
+│   │   │                   ├── application/
+│   │   │                   │   ├── CreatePersonUseCase.java       # classe - cas d’usage
+│   │   │                   │   ├── DisablePersonUseCase.java      # classe - cas d’usage
+│   │   │                   │   ├── reader/
+│   │   │                   │   │   ├── PersonReader.java          # interface - port entrant exposé aux autres modules
+│   │   │                   │   └── repository/
+│   │   │                   │       └── PersonRepository.java      # interface - port sortant vers persistance
+│   │   │                   │
+│   │   │                   ├── infrastructure/
+│   │   │                   │   ├── persistence/
+│   │   │                   │   │   ├── PersonEntity.java          # classe JPA - table person_person
+│   │   │                   │   │   └── JpaPersonRepository.java   # classe - implémente PersonRepository
+│   │   │                   │   └── mapper/
+│   │   │                   │       └── PersonPersistenceMapper.java # classe - Person <-> PersonEntity
+│   │   │                   │
+│   │   │                   └── presentation/
+│   │   │                       ├── PersonResource.java            # classe REST Quarkus
+│   │   │                       ├── dto/
+│   │   │                       │   ├── CreatePersonRequest.java   # record - DTO API entrant
+│   │   │                       │   └── PersonResponse.java        # record - DTO API sortant
+│   │   │                       └── mapper/
+│   │   │                           └── PersonDtoMapper.java       # classe - DTO <-> command / response
+│   │   │
+│   │   └── resources/
+│   │       ├── application.properties
+│   │       └── db/
+│   │           └── migration/
+│   │               ├── V001__create_person_tables.sql
+│   │               └── V002__create_program_tables.sql
+│   │
+....
+
+== Convention classes / interfaces
+
+=== Domain
+
+....
+Activity.java          # classe métier, agrégat
+Person.java            # classe métier, entité
+TimeSlot.java          # record, value object
+ActivityType.java      # enum
+PersonStatus.java      # enum
+....
+
+=== Application
+
+....
+CreateActivityUseCase.java     # classe
+CreatePersonUseCase.java       # classe
+
+ParticipantProvider.java       # interface, port sortant de program
+ProgramReader.java             # interface, port entrant de program
+PersonReader.java              # interface, port entrant de person
+
+ActivityRepository.java        # interface, port sortant vers la persistance
+PersonRepository.java          # interface, port sortant vers la persistance
+
+....
+
+=== Infrastructure
+
+....
+PersonParticipantAdapter.java  # classe, adapter inter-module program -> person
+
+ActivityEntity.java            # classe JPA
+ActivityAssignmentEntity.java  # classe JPA
+PersonEntity.java              # classe JPA
+
+JpaActivityRepository.java     # classe, implémentation ActivityRepository
+JpaPersonRepository.java       # classe, implémentation PersonRepository
+
+ActivityPersistenceMapper.java # classe
+PersonPersistenceMapper.java   # classe
+....
+
+=== Presentation
+
+....
+ActivityResource.java          # classe REST Quarkus
+PersonResource.java            # classe REST Quarkus
+
+CreateActivityRequest.java     # record DTO entrant
+UpdateActivityRequest.java     # record DTO entrant
+ActivityResponse.java          # record DTO sortant
+ParticipantResponse.java       # record DTO sortant
+
+CreatePersonRequest.java       # record DTO entrant
+PersonResponse.java            # record DTO sortant
+
+ActivityDtoMapper.java         # classe
+PersonDtoMapper.java           # classe
+....
+
+== Communication entre modules
+
+=== Program consomme Person
+
+....
+program.application.provider.ParticipantProvider      # interface
+program.infrastructure.adapter.PersonParticipantAdapter # classe
+person.application.reader.PersonReader                # interface
+....
+
+Flux :
+
+....
+CreateActivityUseCase
+    -> ParticipantProvider
+        -> PersonParticipantAdapter
+            -> PersonReader
+....
+
+Le module `program` ne manipule pas `person.domain.Person`.
+
+Il manipule uniquement :
+
+....
+program.domain.Participant
+....
+
+Le module `person` expose uniquement :
+
+....
+person.application.reader.PersonReader
+person.application.reader.PersonDisplay
+....
+
+== Règles de dépendance
+
+....
+domain
+  ne dépend de rien
+
+application
+  dépend de domain
+  contient les interfaces nécessaires au module
+
+infrastructure
+  dépend de application et domain
+  implémente les repositories et les adapters
+
+presentation
+  dépend de application
+  transforme DTO API vers command/use case
+....
+
+== Règle FK
+
+....
+FK autorisée dans un même module.
+FK interdite entre deux modules.
+....
+
+Exemple autorisé :
+
+....
+program_activity_assignment.activity_id
+    -> program_activity.id
+....
+
+Exemple interdit :
+
+....
+program_activity_assignment.participant_id
+    -> person_person.id
+....
+
+À la place :
+
+....
+program_activity_assignment.participant_id UUID
+....
+
+== Règle suppression
+
+....
+Une personne référencée n’est pas supprimée physiquement.
+Elle passe à INACTIVE.
+....
+
+Pour assigner une personne à une activité :
+
+....
+Program -> ParticipantProvider -> PersonReader.getActivePersonForAssignment(...)
+....
+
+Pour afficher une ancienne activité :
+
+....
+Program peut demander une vue d’affichage même si la personne est inactive.
+....
