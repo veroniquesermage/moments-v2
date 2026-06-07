@@ -16,7 +16,6 @@ public class ActivityResponse {
     private Set<ParticipantResponse> participants;
     private TimeSlot timeslot;
 
-
     public static ActivityResponse from(Activity activity) {
         ActivityResponse response = new ActivityResponse();
         response.id = activity.getId();
