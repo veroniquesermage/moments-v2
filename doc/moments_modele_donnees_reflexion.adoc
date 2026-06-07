@@ -1,0 +1,120 @@
+= Réflexion sur le modèle de données Moments
+
+== Principes retenus
+
+Nous distinguons trois concepts :
+
+[source,text]
+----
+Account
+= compte technique permettant de se connecter
+
+Person
+= personne métier connue de Moments
+
+EventParticipant
+= participation d'une Person à un Event donné
+----
+
+== Modèle conceptuel
+
+[source,text]
+----
+Account
+  |
+  v
+Person
+  |
+  v
+EventParticipant
+  |
+  v
+Event
+----
+
+== Account
+
+[source,text]
+----
+id
+email
+provider
+status
+----
+
+== Person
+
+[source,text]
+----
+id
+account_id (nullable)
+first_name
+last_name
+status
+----
+
+== Event
+
+[source,text]
+----
+id
+name
+status
+----
+
+== EventParticipant
+
+[source,text]
+----
+id
+event_id
+person_id
+role
+status
+----
+
+== Présence
+
+Option A :
+arrival_date
+departure_date
+
+Option B :
+
+[source,text]
+----
+PresencePeriod
+id
+event_participant_id
+start_date
+end_date
+----
+
+== Activity
+
+[source,text]
+----
+id
+event_id
+planner_id
+title
+location
+description
+timeslot
+----
+
+Le planner et les participants référencent des EventParticipant.
+
+== ActivityParticipant
+
+Table de relation entre une activité et les participants inscrits.
+
+[source,text]
+----
+ActivityParticipant
+-------------------
+id
+activity_id
+event_participant_id
+status
+----

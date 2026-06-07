@@ -1,0 +1,33 @@
+Front React
+  |
+  v
+[presentation]
+ActivityResource
+  |
+  | appelle
+  v
+[application - use case]
+UpdateActivityUseCase
+  |
+  | récupère Activity via ActivityRepository
+  v
+[domain]
+Activity
+  |
+  | activity.rename(newName)
+  v
+[application - repository port]
+UpdateActivityUseCase
+  |
+  | dépend de l'interface
+  v
+ActivityRepository
+  |
+  | implémenté par
+  v
+[infrastructure]
+JpaActivityRepository
+  |
+  | utilise
+  v
+ActivityEntity / PostgreSQL
